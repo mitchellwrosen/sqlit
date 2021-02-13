@@ -1,0 +1,53 @@
+cabal-version: 3.0
+
+name: sqlit
+version: 0
+
+library
+  build-depends:
+    base,
+    bytestring,
+    containers,
+    contravariant,
+    direct-sqlite,
+    Only,
+    safe-exceptions,
+    template-haskell,
+    text,
+    transformers,
+    witherable,
+  default-extensions:
+    AllowAmbiguousTypes
+    BlockArguments
+    DataKinds
+    DerivingVia
+    FlexibleInstances
+    GADTs
+    GeneralizedNewtypeDeriving
+    InstanceSigs
+    KindSignatures
+    LambdaCase
+    NoImplicitPrelude
+    OverloadedStrings
+    QuasiQuotes
+    RankNTypes
+    ScopedTypeVariables
+    TupleSections
+    TypeApplications
+    TypeOperators
+    UndecidableInstances
+    ViewPatterns
+  default-language: Haskell2010
+  exposed-modules:
+    Sqlit
+  ghc-options: -Wall
+  hs-source-dirs: src
+  other-modules:
+    Sqlit.Ap
+    Sqlit.Column
+    Sqlit.GroupConcat
+    Sqlit.Prelude
+    Sqlit.Row
+    Sqlit.Table
+    Sqlit.Transaction
+    Sqlit.Value

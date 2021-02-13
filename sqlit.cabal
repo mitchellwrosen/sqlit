@@ -9,6 +9,7 @@ library
     bytestring,
     containers,
     direct-sqlite,
+    hashable,
     megaparsec,
     Only,
     parser-combinators,
@@ -16,6 +17,7 @@ library
     template-haskell,
     text >= 1.2.4.0,
     transformers,
+    unordered-containers,
     witherable,
   default-extensions:
     AllowAmbiguousTypes

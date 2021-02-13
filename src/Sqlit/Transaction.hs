@@ -1,6 +1,11 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 
-module Sqlit.Transaction where
+module Sqlit.Transaction
+  ( Transaction (..),
+    runTransaction,
+    dupableTransactionIO,
+  )
+where
 
 import Control.Monad.Trans.Reader
 import Database.SQLite3 qualified as Sqlite
@@ -11,6 +16,7 @@ newtype Transaction a
   deriving (Applicative, Functor, Monad) via (ReaderT Sqlite.Database IO)
 
 -- TODO transactionTry
+-- TODO MonadIO with type error
 
 runTransaction :: Sqlite.Database -> Transaction a -> IO a
 runTransaction db (Transaction transaction) =
@@ -38,16 +44,12 @@ runTransaction db (Transaction transaction) =
             Left sqlError -> whenBusy sqlError again
             Right () -> pure result
 
-onLeftM :: Monad m => (a -> m b) -> m (Either a b) -> m b
-onLeftM f m =
-  m >>= either f pure
-
 whenBusy :: SomeException -> IO a -> IO a
 whenBusy exception =
   case fromException exception of
-    Nothing -> const (throwIO exception)
-    Just sqlError -> whenBusy sqlError
+    Just (Sqlite.SQLError Sqlite.ErrorBusy _ _) -> id
+    _ -> const (throwIO exception)
 
-transactionIO :: IO a -> Transaction a
-transactionIO action =
+dupableTransactionIO :: IO a -> Transaction a
+dupableTransactionIO action =
   Transaction \_ -> action

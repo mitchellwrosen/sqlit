@@ -8,12 +8,13 @@ library
     base,
     bytestring,
     containers,
-    contravariant,
     direct-sqlite,
+    megaparsec,
     Only,
+    parser-combinators,
     safe-exceptions,
     template-haskell,
-    text,
+    text >= 1.2.4.0,
     transformers,
     witherable,
   default-extensions:
@@ -48,6 +49,7 @@ library
     Sqlit.GroupConcat
     Sqlit.Prelude
     Sqlit.Row
+    Sqlit.Sql
     Sqlit.Table
     Sqlit.Transaction
     Sqlit.Value

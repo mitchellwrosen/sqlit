@@ -9,8 +9,6 @@ import Data.ByteString as X (ByteString)
 import Data.Coerce as X
 import Data.Function as X
 import Data.Functor as X
-import Data.Functor.Contravariant as X
-import Data.Functor.Contravariant.Divisible as X
 import Data.Int as X
 import Data.Kind as X (Type)
 import Data.Sequence as X (Seq)

@@ -48,6 +48,7 @@ library
   other-modules:
     Sqlit.Ap
     Sqlit.Column
+    Sqlit.Connection
     Sqlit.GroupConcat
     Sqlit.Prelude
     Sqlit.Row

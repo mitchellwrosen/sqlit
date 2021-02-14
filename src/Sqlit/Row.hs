@@ -2,11 +2,11 @@
 
 module Sqlit.Row
   ( FromRow (..),
-    RowEncoder,
+    RowEncoder (..),
     columnEncoder,
     nullableColumnEncoder,
     bindRow,
-    RowDecoder,
+    RowDecoder (..),
     columnDecoder,
     nullableColumnDecoder,
     decodeRow,

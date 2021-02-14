@@ -1,7 +1,6 @@
-{-# LANGUAGE ImportQualifiedPost #-}
-
 module Sqlit
-  ( withConnection,
+  ( Connection,
+    withConnection,
 
     -- * Writing queries
     Sql,
@@ -38,7 +37,7 @@ module Sqlit
   )
 where
 
-import Database.SQLite3 qualified as Sqlite
+import Sqlit.Connection
 import Sqlit.GroupConcat
 import Sqlit.Prelude
 import Sqlit.Row
@@ -46,12 +45,6 @@ import Sqlit.Sql
 import Sqlit.Table
 import Sqlit.Transaction
 import Sqlit.Value
-
-withConnection :: Text -> (Sqlite.Database -> IO a) -> IO a
-withConnection connstr action =
-  bracket (Sqlite.open connstr) Sqlite.close \db -> do
-    bracket (Sqlite.prepareUtf8 db "PRAGMA foreign_keys") Sqlite.finalize \_ -> pure ()
-    action db
 
 data a :. b
   = a :. b

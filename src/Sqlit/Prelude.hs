@@ -3,6 +3,7 @@ module Sqlit.Prelude
   )
 where
 
+import Control.Concurrent.MVar as X
 import Control.Exception.Safe as X
 import Control.Monad as X
 import Data.ByteString as X (ByteString)

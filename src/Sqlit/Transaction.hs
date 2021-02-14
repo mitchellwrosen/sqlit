@@ -9,21 +9,33 @@ module Sqlit.Transaction
 where
 
 import Control.Monad.Trans.Reader
+import Data.ByteString.Short (ShortByteString)
 import Database.SQLite3 qualified as Sqlite
 import Sqlit.Connection
 import Sqlit.Prelude
+import System.Random.SplitMix
+import System.Random.Stateful
 
 -- | A SQLite transaction.
 newtype Transaction a
-  = Transaction (Sqlite.Database -> IO a)
+  = Transaction (Sqlite.Database -> IOGenM SMGen -> IO a)
   -- TODO drop transformers dep, just write these instances
-  deriving (Applicative, Functor, Monad) via (ReaderT Sqlite.Database IO)
+  deriving (Applicative, Functor, Monad) via (ReaderT Sqlite.Database (ReaderT (IOGenM SMGen) IO))
+
+instance StatefulGen () Transaction where
+  uniformShortByteString :: Int -> () -> Transaction ShortByteString
+  uniformShortByteString n _ =
+    Transaction \_ -> uniformShortByteString n
+
+  uniformWord32 :: () -> Transaction Word32
+  uniformWord32 _ =
+    Transaction \_ -> uniformWord32
 
 -- TODO MonadIO with type error
 
 -- | Run a transaction, retrying if any statement fails with @SQLITE_BUSY@.
 runTransaction :: Connection -> Transaction a -> IO a
-runTransaction (Connection connectionVar) (Transaction transaction :: Transaction a) =
+runTransaction (Connection connectionVar gen) (Transaction transaction :: Transaction a) =
   uninterruptibleMask \restore ->
     withMVar connectionVar \database ->
       fix \again -> do
@@ -45,7 +57,7 @@ runTransaction (Connection connectionVar) (Transaction transaction :: Transactio
         --   Then, retry if the action failed with SQLITE_BUSY.
         --
         -- + If the action succeeds, try committing, and retry if SQLITE_BUSY.
-        try (restore (transaction database)) >>= \case
+        try (restore (transaction database gen)) >>= \case
           Left actionException -> do
             _ <- try @IO @Sqlite.SQLError (Sqlite.exec database "ROLLBACK")
             retryIfBusy actionException
@@ -56,9 +68,9 @@ runTransaction (Connection connectionVar) (Transaction transaction :: Transactio
 
 transactionTry :: Transaction a -> Transaction (Either Sqlite.SQLError a)
 transactionTry (Transaction transaction) =
-  Transaction \database -> try (transaction database)
+  Transaction \database gen -> try (transaction database gen)
 
 -- | Perform an IO action within a transaction. The action may be duplicated if the transaction retries.
 dupableTransactionIO :: IO a -> Transaction a
 dupableTransactionIO action =
-  Transaction \_ -> action
+  Transaction \_ _ -> action

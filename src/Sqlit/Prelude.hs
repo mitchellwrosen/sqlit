@@ -13,6 +13,7 @@ import Data.Functor as X
 import Data.Functor.Contravariant as X
 import Data.HashSet as X (HashSet)
 import Data.Hashable as X (Hashable)
+import Data.IORef as X
 import Data.Int as X
 import Data.Kind as X (Type)
 import Data.Sequence as X (Seq)

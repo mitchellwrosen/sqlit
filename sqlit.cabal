@@ -13,7 +13,9 @@ library
     megaparsec,
     Only,
     parser-combinators,
+    random >= 1.2.0,
     safe-exceptions,
+    splitmix,
     template-haskell,
     text >= 1.2.4.0,
     transformers,
@@ -30,6 +32,7 @@ library
     InstanceSigs
     KindSignatures
     LambdaCase
+    MultiParamTypeClasses
     NoImplicitPrelude
     OverloadedStrings
     QuasiQuotes

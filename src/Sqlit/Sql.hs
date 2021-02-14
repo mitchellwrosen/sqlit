@@ -127,7 +127,7 @@ sqlQuoteExp string =
 
 query :: FromTable a => Sql -> Transaction a
 query (Sql string rowEncoder) =
-  Transaction \db -> do
-    bracket (Sqlite.prepare db string) Sqlite.finalize \statement -> do
+  Transaction \database _gen -> do
+    bracket (Sqlite.prepare database string) Sqlite.finalize \statement -> do
       bindRow rowEncoder statement
       unTableDecoder tableDecoder statement

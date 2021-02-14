@@ -19,9 +19,14 @@ newtype Transaction a
 -- TODO MonadIO with type error
 
 runTransaction :: Sqlite.Database -> Transaction a -> IO a
-runTransaction db (Transaction transaction) =
+runTransaction db (Transaction transaction :: Transaction a) =
   uninterruptibleMask \restore ->
     fix \again -> do
+      let retryIfBusy :: SomeException -> IO a
+          retryIfBusy exception =
+            case fromException exception of
+              Just (Sqlite.SQLError Sqlite.ErrorBusy _ _) -> again
+              _ -> throwIO exception
       restore (Sqlite.exec db "BEGIN")
       -- + If the action fails with some exception. No matter what kind of exception, we do want to attempt to roll back
       --   the transaction, and we do so with asynchronous exceptions masked.
@@ -38,17 +43,11 @@ runTransaction db (Transaction transaction) =
       try (restore (transaction db)) >>= \case
         Left actionException -> do
           _ <- try @IO @Sqlite.SQLError (Sqlite.exec db "ROLLBACK")
-          whenBusy actionException again
+          retryIfBusy actionException
         Right result -> do
           try (restore (Sqlite.exec db "COMMIT")) >>= \case
-            Left sqlError -> whenBusy sqlError again
+            Left sqlError -> retryIfBusy sqlError
             Right () -> pure result
-
-whenBusy :: SomeException -> IO a -> IO a
-whenBusy exception =
-  case fromException exception of
-    Just (Sqlite.SQLError Sqlite.ErrorBusy _ _) -> id
-    _ -> const (throwIO exception)
 
 dupableTransactionIO :: IO a -> Transaction a
 dupableTransactionIO action =

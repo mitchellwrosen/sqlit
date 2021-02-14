@@ -22,9 +22,6 @@ instance (FromValue a, KnownSymbol s) => FromValue (GroupConcat s a) where
     where
       f :: Text -> Maybe (GroupConcat s a)
       f =
-        case valueDecoder @a of
-          ValueDecoder (TextValue (D parse)) ->
-            coerce
-              @(Text -> Maybe [a])
-              (traverse parse . Text.splitOn (Text.pack (symbolVal' (proxy# @s))))
-          _ -> const Nothing
+        coerce
+          @(Text -> Maybe [a])
+          (traverse (asTextDecoder (valueDecoder @a)) . Text.splitOn (Text.pack (symbolVal' (proxy# @s))))

@@ -1,15 +1,12 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 
 module Sqlit.Row
-  ( -- * Encoding
-    RowEncoder (..),
+  ( FromRow (..),
+    RowEncoder,
     columnEncoder,
     nullableColumnEncoder,
     bindRow,
-
-    -- * Decoding
-    FromRow (..),
-    RowDecoder (..),
+    RowDecoder,
     columnDecoder,
     nullableColumnDecoder,
     decodeRow,
@@ -24,8 +21,8 @@ import Sqlit.Value
 
 -- Encoding
 
-newtype RowEncoder = RowEncoder
-  {unRowEncoder :: Sqlite.Statement -> Sqlite.ParamIndex -> IO Sqlite.ParamIndex}
+newtype RowEncoder
+  = RowEncoder (Sqlite.Statement -> Sqlite.ParamIndex -> IO Sqlite.ParamIndex)
 
 instance Monoid RowEncoder where
   mempty :: RowEncoder

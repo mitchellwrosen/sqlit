@@ -8,7 +8,7 @@ module Sqlit.Sql
 where
 
 import Control.Monad.Combinators
-import Data.Char (isSpace)
+import Data.Char (isDigit, isLower, isUpper)
 import Data.Foldable
 import Data.Text qualified as Text
 import Database.SQLite3 as Sqlite
@@ -92,7 +92,9 @@ textToSegments text =
     varSegmentParser :: Megaparsec.Parsec Void Text Text
     varSegmentParser = do
       _ <- Megaparsec.char ':'
-      Megaparsec.takeWhile1P Nothing (not . isSpace)
+      x <- Megaparsec.satisfy isLower
+      xs <- Megaparsec.takeWhile1P Nothing (\c -> isLower c || isUpper c || isDigit c || c == '\'')
+      pure (Text.cons x xs)
 
 segmentsToSql :: [Segment] -> TH.Q TH.Exp
 segmentsToSql segments =

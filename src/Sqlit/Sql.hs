@@ -3,7 +3,7 @@
 
 module Sqlit.Sql
   ( Sql (..),
-    sql,
+    stringToSqlQ,
   )
 where
 
@@ -11,14 +11,10 @@ import Control.Monad.Combinators
 import Data.Char (isDigit, isLower, isUpper)
 import Data.Foldable
 import Data.Text qualified as Text
-import Database.SQLite3 as Sqlite
 import Language.Haskell.TH qualified as TH
-import Language.Haskell.TH.Quote qualified as TH
 import Language.Haskell.TH.Syntax qualified as TH
 import Sqlit.Prelude
-import Sqlit.Row (RowEncoder, bindRow, columnEncoder)
-import Sqlit.Table
-import Sqlit.Transaction
+import Sqlit.Row (RowEncoder, columnEncoder)
 import Text.Megaparsec qualified as Megaparsec
 import Text.Megaparsec.Char qualified as Megaparsec
 
@@ -111,23 +107,3 @@ varSegmentToSql (Text.unpack -> s) =
   TH.lookupValueName s >>= \case
     Nothing -> fail ("Unbound variable: " ++ s)
     Just name -> TH.conE 'Sql `TH.appE` TH.lift ("?" :: Text) `TH.appE` (TH.varE 'columnEncoder `TH.appE` TH.varE name)
-
-sql :: TH.QuasiQuoter
-sql =
-  TH.QuasiQuoter
-    { TH.quoteExp = sqlQuoteExp,
-      TH.quoteDec = undefined,
-      TH.quotePat = undefined,
-      TH.quoteType = undefined
-    }
-
-sqlQuoteExp :: String -> TH.Q TH.Exp
-sqlQuoteExp string =
-  TH.varE 'query `TH.appE` stringToSqlQ string
-
-query :: FromTable a => Sql -> Transaction a
-query (Sql string rowEncoder) =
-  Transaction \database _gen -> do
-    bracket (Sqlite.prepare database string) Sqlite.finalize \statement -> do
-      bindRow rowEncoder statement
-      unTableDecoder tableDecoder statement

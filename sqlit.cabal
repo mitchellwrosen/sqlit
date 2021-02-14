@@ -11,6 +11,7 @@ library
     direct-sqlite,
     hashable,
     megaparsec,
+    -- TODO maybe delete this?
     Only,
     parser-combinators,
     random >= 1.2.0,
@@ -54,6 +55,7 @@ library
     Sqlit.Connection
     Sqlit.GroupConcat
     Sqlit.Prelude
+    Sqlit.QQ
     Sqlit.Row
     Sqlit.Sql
     Sqlit.Table

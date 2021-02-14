@@ -3,8 +3,13 @@ module Sqlit
     withConnection,
 
     -- * Writing queries
-    Sql,
-    sql,
+    exec,
+    only,
+    Sqlit.QQ.maybe,
+    list,
+    Sqlit.QQ.seq,
+    set,
+    hashSet,
     (:.) (..),
     (:?) (..),
     GroupConcat (..),
@@ -15,8 +20,8 @@ module Sqlit
     dupableTransactionIO,
 
     -- * Table
-    FromTable (..),
-    TableDecoder,
+
+    -- TableDecoder,
 
     -- * Row
 
@@ -40,9 +45,8 @@ where
 import Sqlit.Connection
 import Sqlit.GroupConcat
 import Sqlit.Prelude
+import Sqlit.QQ
 import Sqlit.Row
-import Sqlit.Sql
-import Sqlit.Table
 import Sqlit.Transaction
 import Sqlit.Value
 
